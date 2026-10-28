@@ -1,0 +1,93 @@
+# =============================================================================
+# UNIMINUTO - CADIT | Data Sources Automation (DSA)
+# .gitignore: Configuración para repositorios Next.js + Python ETL
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Dependencias de Node.js
+# -----------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnp
+.pnp.js
+
+# -----------------------------------------------------------------------------
+# 2. Compilación y caché de Next.js / TypeScript
+# -----------------------------------------------------------------------------
+.next/
+out/
+build/
+dist/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# -----------------------------------------------------------------------------
+# 3. Python (ETL, orquestador, caché y entornos virtuales)
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# -----------------------------------------------------------------------------
+# 4. Datos generados por ETL y descargas (Evitar subir datasets pesados o datos crudos)
+# -----------------------------------------------------------------------------
+fuentes/**/Archivos/*
+!fuentes/**/Archivos/.gitkeep
+fuentes/**/Procesados/*
+!fuentes/**/Procesados/.gitkeep
+fuentes/**/ETL/*.log
+!fuentes/**/ETL/.gitkeep
+
+# Extensiones de datos y logs generados
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# -----------------------------------------------------------------------------
+# 5. Variables de entorno y credenciales (Seguridad)
+# -----------------------------------------------------------------------------
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+credentials.json
+token.json
+
+# -----------------------------------------------------------------------------
+# 6. Archivos del Sistema Operativo y Editores / IDEs
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo

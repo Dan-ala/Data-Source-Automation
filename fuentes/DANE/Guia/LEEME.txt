@@ -1,0 +1,22 @@
+================================================================================
+GUIA OPERATIVA DE LA FUENTE: DANE
+CADIT - UNIMINUTO (Data Sources Automation - DSA)
+================================================================================
+Fecha de Sincronización: 2026-10-27 16:50:56
+Estado del Proceso: OK (Automatizado)
+
+ESTRUCTURA DE ARCHIVOS:
+--------------------------------------------------------------------------------
+1. Archivos/      -> Almacena las descargas originales e inmutables (CSV/XLSX/PDF).
+2. Diccionarios/  -> Contiene 'DICCIONARIO_DANE.md' con el catálogo técnico.
+3. ETL/           -> Scripts Python y logs de auditoría 'etl_execution.log'.
+4. Guia/          -> Contiene este LEEME.txt y la ficha técnica descriptiva.
+5. Procesados/    -> Datasets limpios listos para tableros de BI institucional.
+
+INSTRUCCIONES DE ACTUALIZACION MANUAL:
+--------------------------------------------------------------------------------
+Para volver a procesar esta fuente manualmente desde consola:
+$ python orquestador.py DANE
+
+En caso de incidencias técnicas contactar al equipo de Ingeniería de Datos CADIT.
+================================================================================
