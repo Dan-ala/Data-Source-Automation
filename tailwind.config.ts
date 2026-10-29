@@ -9,14 +9,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        uniminuto: {
-          navy: "#0A1C3D",        // Azul Marino institucional (Header, fondos oscuros)
-          "navy-light": "#152D5E",
-          yellow: "#FFC000",      // Amarillo institucional (Botones y destacados)
-          "yellow-hover": "#E5AC00",
-          red: "#E30613",         // Rojo institucional (Alertas y errores)
-          green: "#00A859",       // Verde institucional (Éxito y al día)
+        cadit: {
+          blue: "#004A93",          // Azul UNIMINUTO principal
+          yellow: "#FFD300",        // Amarillo acento
+          navy: "#212844",          // Azul marino (Texto y contornos)
+          white: "#FFFFFF",         // Blanco
+          fog: "#F3F6FB",           // Niebla (Fondo suave de la plataforma)
+          "light-blue": "#3D7CC9",  // Azul claro (Apoyo)
+          "shadow-blue": "#00397A", // Azul sombra (Hover / Contraste)
+          ochre: "#E0A800",         // Ocre (Sombra del amarillo)
         },
+        uniminuto: {
+          blue: "#004A93",
+          navy: "#212844",
+          "navy-dark": "#0A1C3D",
+          yellow: "#FFD300",
+          "yellow-hover": "#E0A800",
+          red: "#E30613",
+          green: "#00A859",
+          fog: "#F3F6FB",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-ibm-plex-sans)", "system-ui", "sans-serif"],
       },
     },
   },

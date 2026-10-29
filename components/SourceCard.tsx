@@ -10,7 +10,8 @@ import {
   AlertTriangle, 
   XCircle, 
   Calendar,
-  FolderOpen
+  FolderOpen,
+  Files
 } from "lucide-react";
 
 interface SourceCardProps {
@@ -31,22 +32,22 @@ export const SourceCard: React.FC<SourceCardProps> = ({
     switch (status) {
       case "Al día":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#00A859] border border-[#00A859]/30 shadow-xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#00A859]" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Al día
           </span>
         );
       case "Desactualizado":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-[#FFC000] shadow-xs">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-cadit-yellow shadow-2xs">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
             Desactualizado
           </span>
         );
       case "Fallo":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-[#E30613] border border-[#E30613]/30 shadow-xs">
-            <XCircle className="w-3.5 h-3.5 text-[#E30613]" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-300 shadow-2xs">
+            <XCircle className="w-3.5 h-3.5 text-red-600" />
             Fallo
           </span>
         );
@@ -57,13 +58,13 @@ export const SourceCard: React.FC<SourceCardProps> = ({
 
   return (
     <div 
-      className={`relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200/80 border-t-4 ${source.categoryColor} flex flex-col justify-between overflow-hidden group`}
+      className={`relative bg-white rounded-xl shadow-xs hover:shadow-md transition-all duration-300 border border-slate-200/90 border-t-4 ${source.categoryColor || "border-cadit-blue"} flex flex-col justify-between overflow-hidden group`}
     >
       {/* Contenido Superior de la Tarjeta */}
       <div className="p-6">
         {/* Cabecera: Categoría y Badge de Estado */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="text-xs uppercase tracking-wider font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded">
+          <span className="text-[11px] uppercase tracking-wider font-bold text-cadit-navy/70 bg-cadit-fog px-2.5 py-0.5 rounded border border-slate-200">
             {source.category}
           </span>
           {renderStatusBadge(source.status)}
@@ -71,7 +72,7 @@ export const SourceCard: React.FC<SourceCardProps> = ({
 
         {/* Título y Nombre Completo */}
         <div className="mb-4">
-          <h3 className="text-2xl font-bold text-slate-900 tracking-tight group-hover:text-uniminuto-navy transition-colors">
+          <h3 className="text-2xl font-bold text-cadit-navy tracking-tight group-hover:text-cadit-blue transition-colors">
             {source.name}
           </h3>
           <p className="text-xs text-slate-500 mt-1 line-clamp-1" title={source.fullName}>
@@ -79,26 +80,34 @@ export const SourceCard: React.FC<SourceCardProps> = ({
           </p>
         </div>
 
-        {/* Descripción breve (si existe) */}
+        {/* Descripción breve */}
         {source.description && (
-          <p className="text-xs text-slate-600 mb-4 line-clamp-2">
+          <p className="text-xs text-slate-600 mb-4 line-clamp-2 leading-relaxed">
             {source.description}
           </p>
         )}
 
-        {/* Metadata: Fecha de última actualización y periodicidad */}
+        {/* Metadata: Fecha de última actualización, periodicidad y archivos */}
         <div className="space-y-2 pt-3 border-t border-slate-100">
           <div className="flex items-center text-xs text-slate-600">
-            <Calendar className="w-4 h-4 mr-2 text-slate-400" />
-            <span className="font-medium text-slate-500 mr-1">Última actualización:</span>
-            <span className="font-semibold text-slate-700">{source.lastUpdated}</span>
+            <Calendar className="w-3.5 h-3.5 mr-2 text-cadit-blue" />
+            <span className="font-medium text-slate-500 mr-1">Última modificación:</span>
+            <span className="font-semibold text-cadit-navy">{source.lastUpdated}</span>
           </div>
 
           {source.periodicity && (
             <div className="flex items-center text-xs text-slate-600">
-              <FolderOpen className="w-4 h-4 mr-2 text-slate-400" />
+              <FolderOpen className="w-3.5 h-3.5 mr-2 text-cadit-blue" />
               <span className="font-medium text-slate-500 mr-1">Frecuencia:</span>
               <span className="text-slate-700">{source.periodicity}</span>
+            </div>
+          )}
+
+          {source.filesCount !== undefined && source.filesCount > 0 && (
+            <div className="flex items-center text-xs text-slate-600">
+              <Files className="w-3.5 h-3.5 mr-2 text-cadit-blue" />
+              <span className="font-medium text-slate-500 mr-1">Archivos en repositorio:</span>
+              <span className="font-semibold text-cadit-blue">{source.filesCount} elementos</span>
             </div>
           )}
         </div>
@@ -106,17 +115,17 @@ export const SourceCard: React.FC<SourceCardProps> = ({
 
       {/* Acciones y Botones */}
       <div className="p-6 pt-0 bg-white space-y-3">
-        {/* Botón Principal: Actualizar Ahora con Amarillo UNIMINUTO */}
+        {/* Botón Principal: Sincronizar / Actualizar con Amarillo CADIT */}
         <button
           onClick={() => onUpdate(source)}
           disabled={isUpdating}
-          className="w-full bg-[#FFC000] hover:bg-[#E5AC00] active:scale-[0.99] text-slate-950 font-bold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer text-sm"
+          className="w-full bg-cadit-yellow hover:bg-cadit-ochre active:scale-[0.99] text-cadit-navy font-bold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-xs flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer text-sm"
           title={`Ejecutar actualización y orquestación para ${source.name}`}
         >
           <RefreshCw 
-            className={`w-4 h-4 ${isUpdating ? "animate-spin text-slate-900" : "text-slate-800"}`} 
+            className={`w-4 h-4 ${isUpdating ? "animate-spin text-cadit-navy" : "text-cadit-navy"}`} 
           />
-          <span>{isUpdating ? "Actualizando fuente..." : "Actualizar Ahora"}</span>
+          <span>{isUpdating ? "Actualizando fuente..." : "Sincronizar Fuente"}</span>
         </button>
 
         {/* Enlaces Secundarios: Ver LEEME y Ver Diccionario */}
@@ -124,20 +133,20 @@ export const SourceCard: React.FC<SourceCardProps> = ({
           <button
             type="button"
             onClick={() => onViewDoc ? onViewDoc("LEEME", source) : null}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors"
-            title="Consultar archivo LEEME.txt y Guía institucional"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-cadit-navy bg-cadit-fog hover:bg-slate-200/80 border border-slate-200 rounded-md transition-colors"
+            title="Consultar archivo LEEME.txt y Guía institucional en modo lectura"
           >
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
+            <FileText className="w-3.5 h-3.5 text-cadit-blue" />
             <span>Ver LEEME</span>
           </button>
 
           <button
             type="button"
             onClick={() => onViewDoc ? onViewDoc("DICCIONARIO", source) : null}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors"
-            title="Consultar Diccionario de Datos (.md)"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-cadit-navy bg-cadit-fog hover:bg-slate-200/80 border border-slate-200 rounded-md transition-colors"
+            title="Consultar Diccionario de Datos (.md) en modo lectura"
           >
-            <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+            <BookOpen className="w-3.5 h-3.5 text-cadit-blue" />
             <span>Ver Diccionario</span>
           </button>
         </div>

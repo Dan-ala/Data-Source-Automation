@@ -5,10 +5,14 @@ export interface DataSource {
   name: string;
   fullName: string;
   category: string;
-  categoryColor: string; // Color Tailwind para el borde superior (ej. 'border-pink-500', 'border-orange-500')
+  categoryColor: string; // Color Tailwind para el acento de tarjeta
   status: SourceStatus;
   lastUpdated: string;
   periodicity?: string;
   description?: string;
   recordsCount?: number;
+  filesCount?: number;
+  hasDiccionario?: boolean;
+  hasLeeme?: boolean;
+  subPath?: string;
 }
