@@ -16,17 +16,104 @@ import {
   RefreshCw,
   FolderSync,
   Info,
-  Loader2
+  Loader2,
+  LayoutGrid,
+  ListFilter
 } from "lucide-react";
 
-// Datos de inicialización de respaldo según las especificaciones del proyecto CADIT
+// Metadatos visuales de las 6 categorías definidas por OEDE - CADIT
+interface CategoryMeta {
+  key: string;
+  name: string;
+  borderColor: string;
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  dotColor: string;
+  accentBg: string;
+  description: string;
+}
+
+const CATEGORY_CONFIG: CategoryMeta[] = [
+  {
+    key: "Educación",
+    name: "Educación",
+    borderColor: "border-blue-600",
+    badgeBg: "bg-blue-50",
+    badgeText: "text-blue-700",
+    badgeBorder: "border-blue-200",
+    dotColor: "bg-blue-600",
+    accentBg: "bg-blue-600/5",
+    description: "Sistemas universitarios, matrícula, pruebas de estado ICFES, retención y permanencia estudiantil.",
+  },
+  {
+    key: "Rosado",
+    name: "Rosado",
+    borderColor: "border-pink-500",
+    badgeBg: "bg-pink-50",
+    badgeText: "text-pink-700",
+    badgeBorder: "border-pink-200",
+    dotColor: "bg-pink-500",
+    accentBg: "bg-pink-500/5",
+    description: "Competitividad departamental, demografía, estadísticas vitales, mercado laboral, impuestos y censos.",
+  },
+  {
+    key: "Verde",
+    name: "Verde",
+    borderColor: "border-emerald-500",
+    badgeBg: "bg-emerald-50",
+    badgeText: "text-emerald-700",
+    badgeBorder: "border-emerald-200",
+    dotColor: "bg-emerald-500",
+    accentBg: "bg-emerald-500/5",
+    description: "Inversión pública regional, regalías DNP, contratación estatal SECOP, conectividad TIC y patentes SIC.",
+  },
+  {
+    key: "Rojo",
+    name: "Rojo",
+    borderColor: "border-rose-500",
+    badgeBg: "bg-rose-50",
+    badgeText: "text-rose-700",
+    badgeBorder: "border-rose-200",
+    dotColor: "bg-rose-500",
+    accentBg: "bg-rose-500/5",
+    description: "Planeación territorial, estadísticas TerriData y planes de desarrollo departamentales y municipales.",
+  },
+  {
+    key: "Naranja",
+    name: "Naranja",
+    borderColor: "border-orange-500",
+    badgeBg: "bg-orange-50",
+    badgeText: "text-orange-700",
+    badgeBorder: "border-orange-200",
+    dotColor: "bg-orange-500",
+    accentBg: "bg-orange-500/5",
+    description: "Empleabilidad formal, demanda laboral, convocatorias públicas de mérito CNSC y tendencias digitales.",
+  },
+  {
+    key: "Celeste",
+    name: "Celeste",
+    borderColor: "border-sky-400",
+    badgeBg: "bg-sky-50",
+    badgeText: "text-sky-700",
+    badgeBorder: "border-sky-200",
+    dotColor: "bg-sky-400",
+    accentBg: "bg-sky-400/5",
+    description: "Prestadores de servicios de salud habilitados REPS y registro nacional de prestadores turísticos RNT.",
+  },
+];
+
+// 36 Fuentes institucionales organizadas en las 6 categorías oficiales
 const FALLBACK_SOURCES: DataSource[] = [
+  // ==========================================
+  // 1. Educación (14 fuentes)
+  // ==========================================
   {
     id: "icetex",
     name: "ICETEX",
     fullName: "Instituto Colombiano de Crédito Educativo y Estudios Técnicos en el Exterior",
-    category: "Financiación y Becas",
-    categoryColor: "border-cadit-yellow",
+    category: "Educación",
+    categoryColor: "border-blue-600",
     status: "Al día",
     lastUpdated: "2026-10-28 14:11",
     periodicity: "Corte Semestral / Anual",
@@ -36,221 +123,11 @@ const FALLBACK_SOURCES: DataSource[] = [
     subPath: "ICETEX",
   },
   {
-    id: "mintic",
-    name: "MINTIC",
-    fullName: "Ministerio de Tecnologías de la Información y las Comunicaciones",
-    category: "Conectividad y TIC",
-    categoryColor: "border-cadit-light-blue",
-    status: "Al día",
-    lastUpdated: "2026-10-19 14:40",
-    periodicity: "Corte Trimestral",
-    description: "Accesos a internet fijo municipal, penetración tecnológica y viabilidad de modalidad virtual.",
-    recordsCount: 973335,
-    filesCount: 3,
-    subPath: "MINTIC",
-  },
-  {
-    id: "sena",
-    name: "SENA",
-    fullName: "Servicio Nacional de Aprendizaje",
-    category: "Formación y Empleabilidad",
-    categoryColor: "border-emerald-600",
-    status: "Al día",
-    lastUpdated: "2026-10-26 15:58",
-    periodicity: "Corte Semestral",
-    description: "Georreferenciación de centros de formación y programación de oferta académica técnica.",
-    recordsCount: 15420,
-    filesCount: 6,
-    subPath: "SENA",
-  },
-  {
-    id: "snies",
-    name: "SNIES",
-    fullName: "Sistema Nacional de Información de la Educación Superior",
-    category: "Sistema Universitario",
-    categoryColor: "border-cadit-blue",
-    status: "Al día",
-    lastUpdated: "2026-10-26 09:57",
-    periodicity: "Corte Anual",
-    description: "Estadísticas de matrícula, oferta de programas aprobados, graduados e indicadores SPADIES/OLE.",
-    recordsCount: 348200,
-    filesCount: 75,
-    subPath: "SNIES",
-  },
-  {
-    id: "icfes",
-    name: "ICFES - SABER PRO",
-    fullName: "Instituto Colombiano para la Evaluación de la Educación",
-    category: "Calidad Académica",
-    categoryColor: "border-indigo-600",
-    status: "Al día",
-    lastUpdated: "2026-10-22 12:34",
-    periodicity: "Corte Anual",
-    description: "Resultados agregados por competencias genéricas y específicas de evaluación Saber Pro.",
-    recordsCount: 52400,
-    filesCount: 52,
-    subPath: "ICFES/Saber_Pro",
-  },
-  {
-    id: "idc",
-    name: "IDC",
-    fullName: "Índice Departamental de Competitividad",
-    category: "Competitividad y Territorio",
-    categoryColor: "border-amber-500",
-    status: "Al día",
-    lastUpdated: "2026-10-28 15:00",
-    periodicity: "Corte Anual (2019-2026)",
-    description: "Métricas de competitividad subnacional, educación superior, innovación y dinamismo empresarial.",
-    recordsCount: 85200,
-    filesCount: 81,
-    subPath: "IDC",
-  },
-  {
-    id: "idic",
-    name: "IDIC",
-    fullName: "Índice Departamental de Innovación para Colombia",
-    category: "Innovación y Desarrollo",
-    categoryColor: "border-purple-600",
-    status: "Al día",
-    lastUpdated: "2026-10-26 11:20",
-    periodicity: "Corte Anual",
-    description: "Capacidades, insumos y resultados del sistema de ciencia, tecnología e innovación departamental.",
-    recordsCount: 12400,
-    filesCount: 7,
-    subPath: "IDIC",
-  },
-  {
-    id: "sineb",
-    name: "SINEB",
-    fullName: "Sistema Nacional de Información de Educación Básica y Media",
-    category: "Educación Previa y Cobertura",
-    categoryColor: "border-teal-600",
-    status: "Al día",
-    lastUpdated: "2026-10-25 09:30",
-    periodicity: "Corte Anual",
-    description: "Matrícula escolar, deserción escolar, transición a educación superior y caracterización estudiantil.",
-    recordsCount: 182300,
-    filesCount: 53,
-    subPath: "SINEB",
-  },
-  {
-    id: "planes_desarrollo",
-    name: "PLANES DE DESARROLLO",
-    fullName: "Planes de Desarrollo Departamentales y Municipales de Colombia",
-    category: "Planeación Territorial",
-    categoryColor: "border-rose-600",
-    status: "Al día",
-    lastUpdated: "2026-10-27 16:45",
-    periodicity: "Periodo Cuatrienal",
-    description: "Documentos e instrumentos estratégicos de desarrollo regional para pertinencia académica institucional.",
-    recordsCount: 2410,
-    filesCount: 241,
-    subPath: "PlanesDesarrollo",
-  },
-  {
-    id: "educacion_latam",
-    name: "EDUCACIÓN SUPERIOR LATAM",
-    fullName: "Benchmarking de Sistemas Universitarios en América Latina",
-    category: "Internacionalización y Benchmarking",
-    categoryColor: "border-sky-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 13:56",
-    periodicity: "Corte Anual",
-    description: "Estadísticas y anuarios universitarios de Argentina, Brasil, Chile, México, Perú y Uruguay.",
-    recordsCount: 654000,
-    filesCount: 613,
-    subPath: "EducacionSuperiorLatam",
-  },
-  {
-    id: "minciencias",
-    name: "MINCIENCIAS",
-    fullName: "Ministerio de Ciencia, Tecnología e Innovación",
-    category: "Investigación e Innovación",
-    categoryColor: "border-cadit-blue",
-    status: "Al día",
-    lastUpdated: "2026-10-19 15:30",
-    periodicity: "Convocatorias Anuales",
-    description: "Reconocimiento y clasificación de grupos de investigación, investigadores y escalafón científico.",
-    recordsCount: 9570,
-    filesCount: 3,
-    subPath: "MINCIENCIAS",
-  },
-  {
-    id: "rnt",
-    name: "REGISTRO NACIONAL DE TURISMO",
-    fullName: "Ministerio de Comercio, Industria y Turismo (RNT)",
-    category: "Sector Productivo y Turismo",
-    categoryColor: "border-orange-500",
-    status: "Al día",
-    lastUpdated: "2026-10-09 11:15",
-    periodicity: "Corte Mensual",
-    description: "Prestadores de servicios turísticos activos, agencias, hospedajes y dinamismo comercial territorial.",
-    recordsCount: 68400,
-    filesCount: 3,
-    subPath: "Registro Nacional Turismo",
-  },
-  {
-    id: "dane",
-    name: "DANE - GEIH / DEMOGRAFÍA",
-    fullName: "Departamento Administrativo Nacional de Estadística",
-    category: "Demografía y Mercado Laboral",
-    categoryColor: "border-cadit-yellow",
-    status: "Al día",
-    lastUpdated: "2026-10-27 16:50",
-    periodicity: "Corte Mensual / Trimestral",
-    description: "Mercado laboral, desempleo, ingresos, población por departamento y cuentas nacionales.",
-    recordsCount: 2450000,
-    filesCount: 7,
-    subPath: "DANE/GEIH",
-  },
-  {
-    id: "secop",
-    name: "SECOP - CONTRATACIÓN PÚBLICA",
-    fullName: "Sistema Electrónico de Contratación Pública (Colombia Compra Eficiente)",
-    category: "Sector Público y Licitaciones",
-    categoryColor: "border-emerald-700",
-    status: "Al día",
-    lastUpdated: "2026-10-25 14:00",
-    periodicity: "Diario / Tiempo Real",
-    description: "Licitaciones estatales, convenios interinstitucionales y contratación pública de entidades territoriales.",
-    recordsCount: 154000,
-    filesCount: 6,
-    subPath: "SECOP",
-  },
-  {
-    id: "terridata",
-    name: "TERRIDATA - DNP",
-    fullName: "Sistema de Estadísticas Territoriales del DNP",
-    category: "Desarrollo Territorial",
-    categoryColor: "border-purple-600",
-    status: "Al día",
-    lastUpdated: "2026-10-26 17:30",
-    periodicity: "Corte Semestral / Anual",
-    description: "Fichas territoriales comparadas, finanzas públicas, cobertura educativa y calidad de vida municipal.",
-    recordsCount: 98000,
-    filesCount: 5,
-    subPath: "TerriData",
-  },
-  {
-    id: "spadies",
-    name: "SPADIES",
-    fullName: "Sistema para la Prevención de la Deserción en la Educación Superior",
-    category: "Permanencia y Deserción",
-    categoryColor: "border-rose-600",
-    status: "Al día",
-    lastUpdated: "2026-10-21 16:44",
-    periodicity: "Corte Semestral / Anual",
-    description: "Tasas de deserción y retención estudiantil por cohorte, determinantes socioeconómicos e institucionales.",
-    recordsCount: 1347000,
-    filesCount: 1366,
-    subPath: "SNIES/SPADIES",
-  },
-  {
     id: "ole",
     name: "OLE - OBSERVATORIO LABORAL",
     fullName: "Observatorio Laboral para la Educación (Graduados e Inserción)",
-    category: "Graduados e Inserción Laboral",
-    categoryColor: "border-cadit-yellow",
+    category: "Educación",
+    categoryColor: "border-blue-600",
     status: "Al día",
     lastUpdated: "2026-10-20 14:49",
     periodicity: "Corte Anual",
@@ -260,11 +137,81 @@ const FALLBACK_SOURCES: DataSource[] = [
     subPath: "SNIES/OLE",
   },
   {
+    id: "sineb",
+    name: "SINEB",
+    fullName: "Sistema Nacional de Información de Educación Básica y Media",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-25 09:30",
+    periodicity: "Corte Anual",
+    description: "Matrícula escolar, deserción escolar, transición a educación superior y caracterización estudiantil.",
+    recordsCount: 182300,
+    filesCount: 53,
+    subPath: "SINEB",
+  },
+  {
+    id: "snies",
+    name: "SNIES",
+    fullName: "Sistema Nacional de Información de la Educación Superior",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-26 09:57",
+    periodicity: "Corte Anual",
+    description: "Estadísticas de matrícula, oferta de programas aprobados, graduados e indicadores SPADIES/OLE.",
+    recordsCount: 348200,
+    filesCount: 75,
+    subPath: "SNIES",
+  },
+  {
+    id: "spadies",
+    name: "SPADIES",
+    fullName: "Sistema para la Prevención de la Deserción en la Educación Superior",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-21 16:44",
+    periodicity: "Corte Semestral / Anual",
+    description: "Tasas de deserción y retención estudiantil por cohorte, determinantes socioeconómicos e institucionales.",
+    recordsCount: 1347000,
+    filesCount: 1366,
+    subPath: "SNIES/SPADIES",
+  },
+  {
+    id: "snies_acreditacion",
+    name: "CNA - ACREDITACIÓN DE ALTA CALIDAD",
+    fullName: "Consejo Nacional de Acreditación / SNIES",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-26 10:00",
+    periodicity: "Resoluciones Mensuales / Anuales",
+    description: "Registro de programas e instituciones de educación superior con acreditación de alta calidad vigente y resoluciones.",
+    recordsCount: 4200,
+    filesCount: 5,
+    subPath: "SNIES/Acreditacion",
+  },
+  {
+    id: "icfes",
+    name: "ICFES - SABER PRO",
+    fullName: "Instituto Colombiano para la Evaluación de la Educación",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-22 12:34",
+    periodicity: "Corte Anual",
+    description: "Resultados agregados por competencias genéricas y específicas de evaluación Saber Pro.",
+    recordsCount: 52400,
+    filesCount: 52,
+    subPath: "ICFES/Saber_Pro",
+  },
+  {
     id: "saber_11",
     name: "ICFES - SABER 11",
     fullName: "Examen de Estado de la Educación Media Saber 11",
-    category: "Educación Media y Aspirantes",
-    categoryColor: "border-indigo-600",
+    category: "Educación",
+    categoryColor: "border-blue-600",
     status: "Al día",
     lastUpdated: "2026-10-22 11:38",
     periodicity: "Corte Semestral (11-1 y 11-2)",
@@ -277,8 +224,8 @@ const FALLBACK_SOURCES: DataSource[] = [
     id: "saber_tyt",
     name: "ICFES - SABER TyT",
     fullName: "Evaluación de la Educación Técnica y Tecnológica Saber TyT",
-    category: "Formación Técnica y Tecnológica",
-    categoryColor: "border-teal-600",
+    category: "Educación",
+    categoryColor: "border-blue-600",
     status: "Al día",
     lastUpdated: "2026-10-22 10:55",
     periodicity: "Corte Semestral",
@@ -291,8 +238,8 @@ const FALLBACK_SOURCES: DataSource[] = [
     id: "pre_saber",
     name: "ICFES - PRE SABER",
     fullName: "Examen de Ensayo y Diagnóstico Pre Saber",
-    category: "Diagnóstico y Articulación Escolar",
-    categoryColor: "border-cadit-blue",
+    category: "Educación",
+    categoryColor: "border-blue-600",
     status: "Al día",
     lastUpdated: "2026-10-22 11:04",
     periodicity: "Corte Semestral",
@@ -302,179 +249,11 @@ const FALLBACK_SOURCES: DataSource[] = [
     subPath: "ICFES/Pre_Saber",
   },
   {
-    id: "rues",
-    name: "RUES - CONFECÁMARAS",
-    fullName: "Registro Único Empresarial y Social de las Cámaras de Comercio",
-    category: "Sector Empresarial y Cámaras",
-    categoryColor: "border-amber-500",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Mensual / Trimestral",
-    description: "Empresas activas, creación y disolución de sociedades, tejido empresarial territorial y formalidad económica.",
-    recordsCount: 1850000,
-    filesCount: 1,
-    subPath: "RUES",
-  },
-  {
-    id: "servicio_empleo",
-    name: "SERVICIO PÚBLICO DE EMPLEO",
-    fullName: "Unidad Administrativa Especial del Servicio Público de Empleo (SPE)",
-    category: "Empleabilidad y Demanda Laboral",
-    categoryColor: "border-emerald-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Mensual",
-    description: "Vacantes laborales registradas, demanda de ocupaciones, perfiles requeridos y brechas de capital humano.",
-    recordsCount: 420000,
-    filesCount: 1,
-    subPath: "ServicioEmpleo",
-  },
-  {
-    id: "reps",
-    name: "REPS - SALUD",
-    fullName: "Registro Especial de Prestadores de Servicios de Salud (Minsalud)",
-    category: "Sector Salud y Cobertura",
-    categoryColor: "border-sky-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Mensual",
-    description: "Prestadores de salud habilitados, sedes, capacidad instalada y demanda de talento en ciencias de la salud.",
-    recordsCount: 78000,
-    filesCount: 1,
-    subPath: "REPS",
-  },
-  {
-    id: "patentes_sic",
-    name: "PATENTES - SIC",
-    fullName: "Superintendencia de Industria y Comercio (Propiedad Industrial)",
-    category: "Propiedad Intelectual e Innovación",
-    categoryColor: "border-purple-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Trimestral / Anual",
-    description: "Solicitudes y concesiones de patentes de invención, modelos de utilidad y registro de marcas por departamento.",
-    recordsCount: 16500,
-    filesCount: 1,
-    subPath: "PATENTES_SIC",
-  },
-  {
-    id: "simo",
-    name: "SIMO - CNSC",
-    fullName: "Sistema de Apoyo para la Igualdad, el Mérito y la Oportunidad (CNSC)",
-    category: "Empleo Público y Concursos",
-    categoryColor: "border-indigo-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Por Convocatoria",
-    description: "Oferta de empleo público de carrera administrativa, perfiles requeridos por entidades territoriales y requisitos.",
-    recordsCount: 31000,
-    filesCount: 2,
-    subPath: "SIMO",
-  },
-  {
-    id: "sgr",
-    name: "SGR - REGALÍAS",
-    fullName: "Sistema General de Regalías (Departamento Nacional de Planeación)",
-    category: "Inversión y Desarrollo Regional",
-    categoryColor: "border-cadit-blue",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Trimestral",
-    description: "Proyectos de inversión regional aprobados, asignación presupuestal y regalías territoriales para infraestructura y educación.",
-    recordsCount: 48900,
-    filesCount: 1,
-    subPath: "SGR",
-  },
-  {
-    id: "dian",
-    name: "DIAN",
-    fullName: "Dirección de Impuestos y Aduanas Nacionales",
-    category: "Tributación y Comercio Exterior",
-    categoryColor: "border-cadit-yellow",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Mensual / Anual",
-    description: "Recaudo tributario municipal y departamental, operaciones aduaneras, balanza comercial y formalización tributaria.",
-    recordsCount: 520000,
-    filesCount: 1,
-    subPath: "DIAN",
-  },
-  {
-    id: "estadisticas_vitales",
-    name: "ESTADÍSTICAS VITALES",
-    fullName: "DANE - Estadísticas Vitales (Nacimientos y Defunciones)",
-    category: "Demografía y Población",
-    categoryColor: "border-rose-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Anual",
-    description: "Dinámica demográfica, tasas de natalidad, fecundidad y proyecciones de cohorte de población infantil y juvenil.",
-    recordsCount: 890000,
-    filesCount: 1,
-    subPath: "Estadísticas Vitales",
-  },
-  {
-    id: "geoportal_dane",
-    name: "GEOPORTAL DANE",
-    fullName: "DANE - Infraestructura de Datos Espaciales y Cartografía Geoestadística",
-    category: "Georreferenciación y Territorio",
-    categoryColor: "border-teal-600",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Anual",
-    description: "Cartografía censal, límites político-administrativos, manzanas urbanas y distribución espacial de la población.",
-    recordsCount: 112000,
-    filesCount: 1,
-    subPath: "GeoportalDANE",
-  },
-  {
-    id: "google_trends",
-    name: "GOOGLE TRENDS",
-    fullName: "Google Trends - Análisis de Tendencias de Búsqueda Vocacional",
-    category: "Tendencias Digitales y Mercado",
-    categoryColor: "border-cadit-light-blue",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Monitoreo Continuo",
-    description: "Índices de interés de búsqueda y demanda digital de programas académicos, carreras universitarias y habilidades.",
-    recordsCount: 350000,
-    filesCount: 1,
-    subPath: "Google Trends",
-  },
-  {
-    id: "inegi",
-    name: "INEGI MÉXICO",
-    fullName: "Instituto Nacional de Estadística y Geografía de México",
-    category: "Internacionalización y Benchmarking",
-    categoryColor: "border-slate-500",
-    status: "Al día",
-    lastUpdated: "2026-10-28 12:00",
-    periodicity: "Corte Anual",
-    description: "Estadísticas demográficas, laborales, educativas y de competitividad del sistema mexicano para benchmarking.",
-    recordsCount: 430000,
-    filesCount: 1,
-    subPath: "INEGI MEXICO",
-  },
-  {
-    id: "snies_acreditacion",
-    name: "CNA - ACREDITACIÓN DE ALTA CALIDAD",
-    fullName: "Consejo Nacional de Acreditación / SNIES",
-    category: "Acreditación y Calidad",
-    categoryColor: "border-cadit-blue",
-    status: "Al día",
-    lastUpdated: "2026-10-26 10:00",
-    periodicity: "Resoluciones Mensuales / Anuales",
-    description: "Registro de programas e instituciones de educación superior con acreditación de alta calidad vigente y resoluciones.",
-    recordsCount: 4200,
-    filesCount: 5,
-    subPath: "SNIES/Acreditacion",
-  },
-  {
     id: "saber_3_5_9",
     name: "ICFES - SABER 3° 5° Y 9°",
     fullName: "Evaluación de la Educación Básica Saber 3°, 5° y 9°",
-    category: "Educación Básica y Primaria",
-    categoryColor: "border-amber-600",
+    category: "Educación",
+    categoryColor: "border-blue-600",
     status: "Al día",
     lastUpdated: "2026-10-22 11:00",
     periodicity: "Corte Periódico",
@@ -484,11 +263,71 @@ const FALLBACK_SOURCES: DataSource[] = [
     subPath: "ICFES/Saber_3_5_y_9",
   },
   {
+    id: "sena",
+    name: "SENA",
+    fullName: "Servicio Nacional de Aprendizaje",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-26 15:58",
+    periodicity: "Corte Semestral",
+    description: "Georreferenciación de centros de formación y programación de oferta académica técnica.",
+    recordsCount: 15420,
+    filesCount: 6,
+    subPath: "SENA",
+  },
+  {
+    id: "minciencias",
+    name: "MINCIENCIAS",
+    fullName: "Ministerio de Ciencia, Tecnología e Innovación",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-19 15:30",
+    periodicity: "Convocatorias Anuales",
+    description: "Reconocimiento y clasificación de grupos de investigación, investigadores y escalafón científico.",
+    recordsCount: 9570,
+    filesCount: 3,
+    subPath: "MINCIENCIAS",
+  },
+  {
+    id: "educacion_latam",
+    name: "EDUCACIÓN SUPERIOR LATAM",
+    fullName: "Benchmarking de Sistemas Universitarios en América Latina",
+    category: "Educación",
+    categoryColor: "border-blue-600",
+    status: "Al día",
+    lastUpdated: "2026-10-28 13:56",
+    periodicity: "Corte Anual",
+    description: "Estadísticas y anuarios universitarios de Argentina, Brasil, Chile, México, Perú y Uruguay.",
+    recordsCount: 654000,
+    filesCount: 613,
+    subPath: "EducacionSuperiorLatam",
+  },
+
+  // ==========================================
+  // 2. Rosado (11 fuentes)
+  // ==========================================
+  {
+    id: "dane",
+    name: "DANE - GEIH / DEMOGRAFÍA",
+    fullName: "Departamento Administrativo Nacional de Estadística",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-27 16:50",
+    periodicity: "Corte Mensual / Trimestral",
+    description: "Mercado laboral, desempleo, ingresos, población por departamento y cuentas nacionales.",
+    recordsCount: 2450000,
+    filesCount: 7,
+    subPath: "DANE/GEIH",
+  },
+  {
     id: "dane_censo",
     name: "DANE - CENSO POBLACIONAL",
     fullName: "Censo Nacional de Población y Vivienda (CNPV)",
-    category: "Demografía y Hogares",
-    categoryColor: "border-cadit-yellow",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
     status: "Al día",
     lastUpdated: "2026-10-27 15:00",
     periodicity: "Censo Decenal / Proyecciones",
@@ -501,8 +340,8 @@ const FALLBACK_SOURCES: DataSource[] = [
     id: "dane_pib",
     name: "DANE - PIB DEPARTAMENTAL",
     fullName: "DANE - Cuentas Nacionales y Producto Interno Bruto Subnacional",
-    category: "Economía Subnacional",
-    categoryColor: "border-emerald-700",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
     status: "Al día",
     lastUpdated: "2026-10-27 15:00",
     periodicity: "Corte Anual",
@@ -515,8 +354,8 @@ const FALLBACK_SOURCES: DataSource[] = [
     id: "dane_pobreza",
     name: "DANE - POBREZA Y CONDICIONES DE VIDA",
     fullName: "DANE - Medición de Pobreza Monetaria y Multidimensional",
-    category: "Desarrollo Social y Equidad",
-    categoryColor: "border-rose-700",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
     status: "Al día",
     lastUpdated: "2026-10-27 15:00",
     periodicity: "Corte Anual",
@@ -524,6 +363,274 @@ const FALLBACK_SOURCES: DataSource[] = [
     recordsCount: 120000,
     filesCount: 1,
     subPath: "DANE/POBREZA",
+  },
+  {
+    id: "dian",
+    name: "DIAN",
+    fullName: "Dirección de Impuestos y Aduanas Nacionales",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Mensual / Anual",
+    description: "Recaudo tributario municipal y departamental, operaciones aduaneras, balanza comercial y formalización tributaria.",
+    recordsCount: 520000,
+    filesCount: 1,
+    subPath: "DIAN",
+  },
+  {
+    id: "idc",
+    name: "IDC",
+    fullName: "Índice Departamental de Competitividad",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 15:00",
+    periodicity: "Corte Anual (2019-2026)",
+    description: "Métricas de competitividad subnacional, educación superior, innovación y dinamismo empresarial.",
+    recordsCount: 85200,
+    filesCount: 81,
+    subPath: "IDC",
+  },
+  {
+    id: "idic",
+    name: "IDIC",
+    fullName: "Índice Departamental de Innovación para Colombia",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-26 11:20",
+    periodicity: "Corte Anual",
+    description: "Capacidades, insumos y resultados del sistema de ciencia, tecnología e innovación departamental.",
+    recordsCount: 12400,
+    filesCount: 7,
+    subPath: "IDIC",
+  },
+  {
+    id: "rues",
+    name: "RUES - CONFECÁMARAS",
+    fullName: "Registro Único Empresarial y Social de las Cámaras de Comercio",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Mensual / Trimestral",
+    description: "Empresas activas, creación y disolución de sociedades, tejido empresarial territorial y formalidad económica.",
+    recordsCount: 1850000,
+    filesCount: 1,
+    subPath: "RUES",
+  },
+  {
+    id: "estadisticas_vitales",
+    name: "ESTADÍSTICAS VITALES",
+    fullName: "DANE - Estadísticas Vitales (Nacimientos y Defunciones)",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Anual",
+    description: "Dinámica demográfica, tasas de natalidad, fecundidad y proyecciones de cohorte de población infantil y juvenil.",
+    recordsCount: 890000,
+    filesCount: 1,
+    subPath: "Estadísticas Vitales",
+  },
+  {
+    id: "geoportal_dane",
+    name: "GEOPORTAL DANE",
+    fullName: "DANE - Infraestructura de Datos Espaciales y Cartografía Geoestadística",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Anual",
+    description: "Cartografía censal, límites político-administrativos, manzanas urbanas y distribución espacial de la población.",
+    recordsCount: 112000,
+    filesCount: 1,
+    subPath: "GeoportalDANE",
+  },
+  {
+    id: "inegi",
+    name: "INEGI MÉXICO",
+    fullName: "Instituto Nacional de Estadística y Geografía de México",
+    category: "Rosado",
+    categoryColor: "border-pink-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Anual",
+    description: "Estadísticas demográficas, laborales, educativas y de competitividad del sistema mexicano para benchmarking.",
+    recordsCount: 430000,
+    filesCount: 1,
+    subPath: "INEGI MEXICO",
+  },
+
+  // ==========================================
+  // 3. Verde (4 fuentes)
+  // ==========================================
+  {
+    id: "sgr",
+    name: "SGR - REGALÍAS",
+    fullName: "Sistema General de Regalías (Departamento Nacional de Planeación)",
+    category: "Verde",
+    categoryColor: "border-emerald-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Trimestral",
+    description: "Proyectos de inversión regional aprobados, asignación presupuestal y regalías territoriales para infraestructura y educación.",
+    recordsCount: 48900,
+    filesCount: 1,
+    subPath: "SGR",
+  },
+  {
+    id: "secop",
+    name: "SECOP - CONTRATACIÓN PÚBLICA",
+    fullName: "Sistema Electrónico de Contratación Pública (Colombia Compra Eficiente)",
+    category: "Verde",
+    categoryColor: "border-emerald-500",
+    status: "Al día",
+    lastUpdated: "2026-10-25 14:00",
+    periodicity: "Diario / Tiempo Real",
+    description: "Licitaciones estatales, convenios interinstitucionales y contratación pública de entidades territoriales.",
+    recordsCount: 154000,
+    filesCount: 6,
+    subPath: "SECOP",
+  },
+  {
+    id: "mintic",
+    name: "MINTIC",
+    fullName: "Ministerio de Tecnologías de la Información y las Comunicaciones",
+    category: "Verde",
+    categoryColor: "border-emerald-500",
+    status: "Al día",
+    lastUpdated: "2026-10-19 14:40",
+    periodicity: "Corte Trimestral",
+    description: "Accesos a internet fijo municipal, penetración tecnológica y viabilidad de modalidad virtual.",
+    recordsCount: 973335,
+    filesCount: 3,
+    subPath: "MINTIC",
+  },
+  {
+    id: "patentes_sic",
+    name: "PATENTES - SIC",
+    fullName: "Superintendencia de Industria y Comercio (Propiedad Industrial)",
+    category: "Verde",
+    categoryColor: "border-emerald-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Trimestral / Anual",
+    description: "Solicitudes y concesiones de patentes de invención, modelos de utilidad y registro de marcas por departamento.",
+    recordsCount: 16500,
+    filesCount: 1,
+    subPath: "PATENTES_SIC",
+  },
+
+  // ==========================================
+  // 4. Rojo (2 fuentes)
+  // ==========================================
+  {
+    id: "terridata",
+    name: "TERRIDATA - DNP",
+    fullName: "Sistema de Estadísticas Territoriales del DNP",
+    category: "Rojo",
+    categoryColor: "border-rose-500",
+    status: "Al día",
+    lastUpdated: "2026-10-26 17:30",
+    periodicity: "Corte Semestral / Anual",
+    description: "Fichas territoriales comparadas, finanzas públicas, cobertura educativa y calidad de vida municipal.",
+    recordsCount: 98000,
+    filesCount: 5,
+    subPath: "TerriData",
+  },
+  {
+    id: "planes_desarrollo",
+    name: "PLANES DE DESARROLLO",
+    fullName: "Planes de Desarrollo Departamentales y Municipales de Colombia",
+    category: "Rojo",
+    categoryColor: "border-rose-500",
+    status: "Al día",
+    lastUpdated: "2026-10-27 16:45",
+    periodicity: "Periodo Cuatrienal",
+    description: "Documentos e instrumentos estratégicos de desarrollo regional para pertinencia académica institucional.",
+    recordsCount: 2410,
+    filesCount: 241,
+    subPath: "PlanesDesarrollo",
+  },
+
+  // ==========================================
+  // 5. Naranja (3 fuentes)
+  // ==========================================
+  {
+    id: "servicio_empleo",
+    name: "SERVICIO PÚBLICO DE EMPLEO",
+    fullName: "Unidad Administrativa Especial del Servicio Público de Empleo (SPE)",
+    category: "Naranja",
+    categoryColor: "border-orange-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Mensual",
+    description: "Vacantes laborales registradas, demanda de ocupaciones, perfiles requeridos y brechas de capital humano.",
+    recordsCount: 420000,
+    filesCount: 1,
+    subPath: "ServicioEmpleo",
+  },
+  {
+    id: "simo",
+    name: "SIMO - CNSC",
+    fullName: "Sistema de Apoyo para la Igualdad, el Mérito y la Oportunidad (CNSC)",
+    category: "Naranja",
+    categoryColor: "border-orange-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Por Convocatoria",
+    description: "Oferta de empleo público de carrera administrativa, perfiles requeridos por entidades territoriales y requisitos.",
+    recordsCount: 31000,
+    filesCount: 2,
+    subPath: "SIMO",
+  },
+  {
+    id: "google_trends",
+    name: "GOOGLE TRENDS",
+    fullName: "Google Trends - Análisis de Tendencias de Búsqueda Vocacional",
+    category: "Naranja",
+    categoryColor: "border-orange-500",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Monitoreo Continuo",
+    description: "Índices de interés de búsqueda y demanda digital de programas académicos, carreras universitarias y habilidades.",
+    recordsCount: 350000,
+    filesCount: 1,
+    subPath: "Google Trends",
+  },
+
+  // ==========================================
+  // 6. Celeste (2 fuentes)
+  // ==========================================
+  {
+    id: "reps",
+    name: "REPS - SALUD",
+    fullName: "Registro Especial de Prestadores de Servicios de Salud (Minsalud)",
+    category: "Celeste",
+    categoryColor: "border-sky-400",
+    status: "Al día",
+    lastUpdated: "2026-10-28 12:00",
+    periodicity: "Corte Mensual",
+    description: "Prestadores de salud habilitados, sedes, capacidad instalada y demanda de talento en ciencias de la salud.",
+    recordsCount: 78000,
+    filesCount: 1,
+    subPath: "REPS",
+  },
+  {
+    id: "rnt",
+    name: "REGISTRO NACIONAL DE TURISMO",
+    fullName: "Ministerio de Comercio, Industria y Turismo (RNT)",
+    category: "Celeste",
+    categoryColor: "border-sky-400",
+    status: "Al día",
+    lastUpdated: "2026-10-09 11:15",
+    periodicity: "Corte Mensual",
+    description: "Prestadores de servicios turísticos activos, agencias, hospedajes y dinamismo comercial territorial.",
+    recordsCount: 68400,
+    filesCount: 3,
+    subPath: "Registro Nacional Turismo",
   },
 ];
 
@@ -534,6 +641,8 @@ export default function DashboardPage() {
   const [updatingSources, setUpdatingSources] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("TODOS");
+  const [categoryFilter, setCategoryFilter] = useState<string>("TODAS");
+  const [viewMode, setViewMode] = useState<"secciones" | "rejilla">("secciones");
   
   // Estado para la notificación flotante
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -634,7 +743,7 @@ export default function DashboardPage() {
   const outdatedCount = sources.filter((s) => s.status === "Desactualizado").length;
   const failureCount = sources.filter((s) => s.status === "Fallo").length;
 
-  // Filtrado de fuentes
+  // Filtrado de fuentes por búsqueda, estado y categoría
   const filteredSources = sources.filter((src) => {
     const matchesSearch =
       src.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -642,8 +751,15 @@ export default function DashboardPage() {
       src.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "TODOS" || src.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesCategory =
+      categoryFilter === "TODAS" || src.category.toLowerCase() === categoryFilter.toLowerCase();
+    return matchesSearch && matchesStatus && matchesCategory;
   });
+
+  // Conteo de fuentes por categoría
+  const countByCategory = (catName: string) => {
+    return sources.filter((s) => s.category.toLowerCase() === catName.toLowerCase()).length;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-cadit-fog">
@@ -708,7 +824,7 @@ export default function DashboardPage() {
               <button
                 onClick={fetchSources}
                 disabled={loadingSources}
-                className="bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-lg text-xs flex items-center gap-2 transition-all border border-white/20 active:scale-95"
+                className="bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-lg text-xs flex items-center gap-2 transition-all border border-white/20 active:scale-95 cursor-pointer"
                 title="Recargar metadatos desde el repositorio de red"
               >
                 <FolderSync className={`w-3.5 h-3.5 ${loadingSources ? "animate-spin" : ""}`} />
@@ -791,14 +907,91 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Barra de Filtros y Búsqueda */}
+        {/* Barra de Filtro por Categorías (Las 6 Categorías OEDE - CADIT) */}
+        <div className="bg-white rounded-xl p-4 shadow-xs border border-slate-200/80 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-cadit-navy uppercase tracking-wider">
+              <ListFilter className="w-4 h-4 text-cadit-blue" />
+              <span>Categorías Temáticas Institucionales</span>
+            </div>
+            
+            {/* Toggle de Modo de Vista */}
+            <div className="flex items-center gap-1 bg-cadit-fog p-1 rounded-lg border border-slate-200 self-start sm:self-auto">
+              <button
+                onClick={() => setViewMode("secciones")}
+                className={`px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  viewMode === "secciones"
+                    ? "bg-white text-cadit-navy shadow-xs font-bold"
+                    : "text-slate-500 hover:text-cadit-navy"
+                }`}
+                title="Ver fuentes divididas por secciones"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Por Secciones</span>
+              </button>
+              <button
+                onClick={() => setViewMode("rejilla")}
+                className={`px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  viewMode === "rejilla"
+                    ? "bg-white text-cadit-navy shadow-xs font-bold"
+                    : "text-slate-500 hover:text-cadit-navy"
+                }`}
+                title="Ver todas las fuentes en rejilla unificada"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Rejilla Continua</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Botones de Categorías */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5">
+            <button
+              onClick={() => setCategoryFilter("TODAS")}
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                categoryFilter === "TODAS"
+                  ? "bg-cadit-navy text-white shadow-xs"
+                  : "bg-cadit-fog text-cadit-navy hover:bg-slate-200/80"
+              }`}
+            >
+              <span>Todas las Categorías</span>
+              <span className={`text-[11px] px-1.5 py-0.2 rounded-full ${categoryFilter === "TODAS" ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"}`}>
+                {totalSources}
+              </span>
+            </button>
+
+            {CATEGORY_CONFIG.map((cat) => {
+              const count = countByCategory(cat.key);
+              const isSelected = categoryFilter.toLowerCase() === cat.key.toLowerCase();
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setCategoryFilter(cat.key)}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 border cursor-pointer ${
+                    isSelected
+                      ? `${cat.badgeBg} ${cat.badgeText} ${cat.badgeBorder} shadow-xs ring-2 ring-offset-1 ring-slate-300 font-extrabold`
+                      : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"
+                  }`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${cat.dotColor} shrink-0`}></span>
+                  <span>{cat.name}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? "bg-white/80" : "bg-slate-100 text-slate-600"}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Barra de Filtros y Búsqueda de Estado */}
         <div className="bg-white rounded-xl p-4 shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Input de Búsqueda */}
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar por fuente, categoría o nombre..."
+              placeholder="Buscar por fuente, categoría o descripción..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-cadit-fog border border-slate-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-cadit-blue focus:bg-white transition-all text-cadit-navy"
@@ -820,13 +1013,13 @@ export default function DashboardPage() {
                     : "bg-cadit-fog text-cadit-navy hover:bg-slate-200/80"
                 }`}
               >
-                {filter === "TODOS" ? "Todas" : filter}
+                {filter === "TODOS" ? "Todos los estados" : filter}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Loader o Grid de Tarjetas de Fuentes */}
+        {/* Loader o Contenedor Principal de Fuentes */}
         {loadingSources ? (
           <div className="bg-white rounded-2xl p-16 text-center border border-slate-200 shadow-xs flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-cadit-blue" />
@@ -837,27 +1030,89 @@ export default function DashboardPage() {
               Conectando con G- Storage OEDE - VAC - FUENTES_T
             </p>
           </div>
-        ) : filteredSources.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSources.map((source) => (
-              <SourceCard
-                key={source.id}
-                source={source}
-                isUpdating={!!updatingSources[source.id]}
-                onUpdate={handleUpdateSource}
-                onViewDoc={handleOpenDocModal}
-              />
-            ))}
-          </div>
-        ) : (
+        ) : filteredSources.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs">
             <div className="w-12 h-12 bg-cadit-fog rounded-full flex items-center justify-center mx-auto text-slate-400 mb-3">
               <Search className="w-6 h-6 text-cadit-blue" />
             </div>
             <h3 className="text-base font-bold text-cadit-navy">No se encontraron fuentes</h3>
             <p className="text-xs text-slate-500 mt-1">
-              Prueba modificando el término de búsqueda o cambiando los filtros de estado.
+              Prueba modificando el término de búsqueda o cambiando los filtros de categoría o estado.
             </p>
+          </div>
+        ) : viewMode === "secciones" && categoryFilter === "TODAS" && searchTerm === "" ? (
+          // =========================================================================
+          // VISTA EN SECCIONES POR CATEGORÍA (Cuando se muestran todas las categorías)
+          // =========================================================================
+          <div className="space-y-10">
+            {CATEGORY_CONFIG.map((cat) => {
+              const catSources = filteredSources.filter(
+                (s) => s.category.toLowerCase() === cat.key.toLowerCase()
+              );
+              if (catSources.length === 0) return null;
+
+              return (
+                <section key={cat.key} className="space-y-4">
+                  {/* Encabezado de la Categoría */}
+                  <div className={`p-4 rounded-xl border ${cat.borderColor} ${cat.accentBg} flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs`}>
+                    <div className="flex items-center gap-3">
+                      <span className={`w-3.5 h-3.5 rounded-full ${cat.dotColor} shrink-0 shadow-xs`}></span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-lg font-extrabold text-cadit-navy tracking-tight">
+                            Categoría: {cat.name}
+                          </h2>
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeBg} ${cat.badgeText} ${cat.badgeBorder}`}>
+                            {catSources.length} {catSources.length === 1 ? "fuente" : "fuentes"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          {cat.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cuadrícula de Fuentes de esta Categoría */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {catSources.map((source) => (
+                      <SourceCard
+                        key={source.id}
+                        source={source}
+                        isUpdating={!!updatingSources[source.id]}
+                        onUpdate={handleUpdateSource}
+                        onViewDoc={handleOpenDocModal}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        ) : (
+          // =========================================================================
+          // VISTA EN REJILLA CONTINUA (O cuando hay filtro de categoría / búsqueda activa)
+          // =========================================================================
+          <div className="space-y-4">
+            {categoryFilter !== "TODAS" && (
+              <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+                <span>
+                  Mostrando fuentes en la categoría: <strong className="text-cadit-navy">{categoryFilter}</strong>
+                </span>
+                <span>{filteredSources.length} resultados</span>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSources.map((source) => (
+                <SourceCard
+                  key={source.id}
+                  source={source}
+                  isUpdating={!!updatingSources[source.id]}
+                  onUpdate={handleUpdateSource}
+                  onViewDoc={handleOpenDocModal}
+                />
+              ))}
+            </div>
           </div>
         )}
 

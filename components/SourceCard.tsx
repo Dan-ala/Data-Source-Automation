@@ -21,6 +21,15 @@ interface SourceCardProps {
   onViewDoc?: (type: "LEEME" | "DICCIONARIO", source: DataSource) => void;
 }
 
+const CATEGORY_TAG_STYLES: Record<string, string> = {
+  "Educación": "bg-blue-50 text-blue-700 border-blue-200",
+  "Rosado": "bg-pink-50 text-pink-700 border-pink-200",
+  "Verde": "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "Rojo": "bg-rose-50 text-rose-700 border-rose-200",
+  "Naranja": "bg-orange-50 text-orange-700 border-orange-200",
+  "Celeste": "bg-sky-50 text-sky-700 border-sky-200",
+};
+
 export const SourceCard: React.FC<SourceCardProps> = ({
   source,
   isUpdating,
@@ -64,7 +73,7 @@ export const SourceCard: React.FC<SourceCardProps> = ({
       <div className="p-6">
         {/* Cabecera: Categoría y Badge de Estado */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="text-[11px] uppercase tracking-wider font-bold text-cadit-navy/70 bg-cadit-fog px-2.5 py-0.5 rounded border border-slate-200">
+          <span className={`text-[11px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded border ${CATEGORY_TAG_STYLES[source.category] || "text-cadit-navy/70 bg-cadit-fog border-slate-200"}`}>
             {source.category}
           </span>
           {renderStatusBadge(source.status)}
