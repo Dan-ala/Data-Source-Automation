@@ -1,76 +1,73 @@
-# Data Sources Automation (DSA) - CADIT UNIMINUTO 📊
+# Data Sources Automation (DSA) — CADIT UNIMINUTO 📊
 
-Plataforma integral para el monitoreo, automatización, ejecución de pipelines ETL y documentación de fuentes de datos institucionales de la **Corporación Universitaria Minuto de Dios (UNIMINUTO)**, desarrollada para la unidad **CADIT**.
+Plataforma oficial para el monitoreo, catalogación de metadatos, visualización de diccionarios técnicos y automatización de fuentes de datos de la **Unidad CADIT** (*Conocimiento, Analítica, Datos, IA y Transformación Digital*) perteneciente a la **Vicerrectoría Académica (VAC)** y la **Oficina de Estudios y Diseños Estratégicos (OEDE)** de **UNIMINUTO**.
 
----
-
-## 🏛️ Identidad Visual Institucional UNIMINUTO
-
-El diseño respeta y aplica rigurosamente la paleta y contrastes oficiales:
-- **Azul Marino (`#0A1C3D`):** Encabezados, barras de navegación y fondos de alto contraste.
-- **Amarillo (`#FFC000`):** Botones de acción principal (*"Actualizar Ahora"*, texto negro para máxima legibilidad según WCAG).
-- **Rojo (`#E30613`):** Alertas, fuentes en fallo o caídas.
-- **Verde (`#00A859`):** Estado exitoso (*"Al día"*), sincronizaciones correctas.
-- **Fondo General (`bg-gray-50`):** Fondo neutro para visualización prolongada sin fatiga visual.
+> 💡 **Para consultar el desglose completo de directorios, archivos, componentes y fuentes:**  
+> Revisa el documento [CONTEXTO_PROYECTO.md](./CONTEXTO_PROYECTO.md) en la raíz del repositorio.
 
 ---
 
-## 🗂️ Estructura de Carpetas por Fuente de Datos
-
-Cada fuente de datos (ej. `ICETEX`, `DANE`, `SABER_PRO`) cuenta con su estructura local normalizada:
-
-```
-fuentes/
-└── [NOMBRE_FUENTE]/
-    ├── Archivos/       # Descargas crudas (CSV, XLSX, PDF) inmutables
-    ├── Diccionarios/   # Diccionario de datos en Markdown (DICCIONARIO_[FUENTE].md)
-    ├── ETL/            # Scripts de transformación y bitácoras de auditoría (etl_execution.log)
-    ├── Guia/           # Archivo de control LEEME.txt y DESCRIPCION_GENERAL_[FUENTE].md
-    └── Procesados/     # Datos limpios y consolidados listos para ingesta en Power BI
-```
+## 🏛️ Identidad de Marca CADIT UNIMINUTO
+- **Símbolo:** Búho en Pixel Art posado sobre la franja amarilla institucional.
+- **Tipografía:** `IBM Plex Sans` (Google Fonts).
+- **Paleta de Colores:**
+  - **Azul CADIT (`#004A93`):** Encabezados, botones primarios y categoría Educación.
+  - **Amarillo UNIMINUTO (`#FFD300`):** Franja inferior de acento, alertas de actualización y badges.
+  - **Azul Marino (`#212844`):** Textos principales, contornos y botones de contraste.
+  - **Fondo Niebla (`#F3F6FB`):** Superficie de trabajo descansada para análisis de datos.
 
 ---
 
-## ⚙️ Flujo Automatizado de 5 Pasos
+## 🗂️ Modelo de Ingesta (Directo y Solo Lectura)
+La plataforma se conecta directamente al repositorio de red institucional:
+`C:\Users\danie\uniminuto.edu\G- Storage OEDE - VAC - FUENTES_T`
 
-Al pulsar **"Actualizar Ahora"** en el Dashboard:
-1. **Descarga:** Ingesta del archivo fuente o consumo de API hacia `Archivos/`.
-2. **ETL:** Ejecución de reglas de negocio, limpieza de nulos y estandarización hacia `Procesados/` con registro en `ETL/`.
-3. **Diccionario:** Generación / actualización técnica del diccionario de campos en `Diccionarios/`.
-4. **LEEME:** Actualización del archivo de versión y estado `Guia/LEEME.txt`.
-5. **Descripción General:** Regeneración de la ficha técnica ejecutiva `Guia/DESCRIPCION_GENERAL_[FUENTE].md`.
+- **Sin duplicación:** Ningún archivo de datos masivo se descarga o copia localmente.
+- **Lectura en tiempo real:** Las rutas API analizan metadatos, mtimes y documentos Markdown (`LEEME`, `Diccionarios`) al vuelo.
 
 ---
 
-## 🚀 Puesta en Marcha
+## 🎨 Las 6 Categorías Oficiales y sus 36 Fuentes
+
+| Categoría | Color | Descripción | Fuentes Incluidas |
+| :--- | :--- | :--- | :--- |
+| 🔵 **Educación** | `border-blue-600` | Sistema universitario, calidad, deserción y evaluaciones | ICETEX, OLE, SINEB, SNIES, SPADIES, CNA - Acreditación, ICFES (Saber Pro, Saber 11, Saber TyT, Pre Saber, Saber 3° 5° 9°), SENA, MINCIENCIAS, Educación Superior Latam |
+| 🌸 **Rosado** | `border-pink-500` | Demografía, competitividad, empresas e impuestos | DANE (GEIH, Censo, PIB, Pobreza), DIAN, IDC, IDIC, RUES, Estadísticas Vitales, GeoportalDANE, INEGI México |
+| 🟢 **Verde** | `border-emerald-500` | Inversión regional, contratación estatal y TIC | SGR (Regalías), SECOP, MINTIC, PATENTES_SIC |
+| 🔴 **Rojo** | `border-rose-500` | Planeación territorial e instrumentos de desarrollo | TerriData, Planes de Desarrollo |
+| 🟠 **Naranja** | `border-orange-500` | Empleabilidad, convocatorias públicas y tendencias | Servicio Público de Empleo, SIMO (CNSC), Google Trends |
+| 💧 **Celeste** | `border-sky-400` | Salud pública y dinamismo turístico | REPS (Minsalud), Registro Nacional de Turismo |
+
+---
+
+## ⚙️ Estructura Homologada por Fuente (5 Pasos)
+Cada fuente en el almacenamiento OEDE está normalizada con:
+1. `Archivos/` — Descargas brutas inmutables (CSV, XLSX, PDF, APIs).
+2. `ETL/` — Scripts de transformación, reglas de homologación y bitácoras de auditoría.
+3. `Diccionarios/` — Diccionario de datos en Markdown (`DICCIONARIO_*.md`).
+4. `Guia/` — Instrucciones de control `LEEME.txt` y fichas ejecutivas `DESCRIPCION_GENERAL_*.md`.
+5. `Procesados/` — Datasets limpios listos para ingesta analítica en Power BI.
+
+---
+
+## 🚀 Inicio Rápido
 
 ### Prerrequisitos
 - **Node.js:** v18.17+ o v20+ / v22+
-- **Python:** 3.10+
+- **NPM:** 9+
 
-### 1. Iniciar Frontend (Next.js Dashboard)
+### Ejecución del Frontend
 ```bash
 # Instalar dependencias
 npm install
 
-# Iniciar servidor de desarrollo
+# Iniciar servidor local
 npm run dev
 ```
-Accede en tu navegador a: **`http://localhost:3000`**
-
-### 2. Ejecutar el Orquestador de Python directamente (CLI)
-```bash
-# Probar con ICETEX
-python orquestador.py ICETEX
-
-# Probar con DANE
-python orquestador.py DANE
-```
+Abre tu navegador en: **`http://localhost:3000`**
 
 ---
 
-## 🔌 Arquitectura de Integración (Next.js ↔ Python)
-
-En el endpoint `app/api/update/route.ts` se implementan dos modalidades:
-1. **Ejecución Local (`child_process.execFile`):** El backend de Next.js ejecuta directamente el script `orquestador.py` en el host, capturando `stdout` y códigos de salida.
-2. **Modo Microservicio (FastAPI/Celery):** Preparado con código de ejemplo documentado para desacoplar el procesamiento pesado en un contenedor o servidor independiente.
+## 📜 Licencia y Derechos
+© 2026 Corporación Universitaria Minuto de Dios — **UNIMINUTO**.  
+Desarrollado para la **Unidad CADIT** (Vicerrectoría Académica / OEDE).
