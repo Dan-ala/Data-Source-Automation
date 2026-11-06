@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import { DataSource, SourceStatus } from "@/types/source";
+import { getFuentesBasePath } from "@/lib/config";
 
 // 36 Fuentes institucionales organizadas por las 6 categorías definidas por OEDE - CADIT
 const TARGET_SOURCES = [
@@ -439,8 +440,6 @@ const TARGET_SOURCES = [
   },
 ];
 
-const DEFAULT_EXTERNAL_PATH = "C:\\Users\\danie\\uniminuto.edu\\G- Storage OEDE - VAC - FUENTES_T";
-
 async function getDirectoryStats(dirPath: string) {
   let fileCount = 0;
   let latestMtime = new Date(0);
@@ -471,7 +470,7 @@ async function getDirectoryStats(dirPath: string) {
 }
 
 export async function GET() {
-  const basePath = process.env.EXTERNAL_FUENTES_PATH || DEFAULT_EXTERNAL_PATH;
+  const basePath = getFuentesBasePath();
 
   const resultSources: DataSource[] = [];
 
