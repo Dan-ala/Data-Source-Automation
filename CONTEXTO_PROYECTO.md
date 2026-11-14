@@ -17,10 +17,12 @@ El diseño de la plataforma implementa de forma estricta el **Manual de Marca CA
 ---
 
 ## 🗄️ 2. Modelo de Acceso a Fuentes Externas (Modo Solo Lectura)
-Para evitar la duplicación de terabytes de información en el disco local o en el repositorio Git, la plataforma opera bajo una política estricta de **lectura directa en red**:
-- **Ruta institucional configurada:**  
+Para evitar la duplicación de terabytes de información en el disco local o en el repositorio Git, la plataforma opera bajo una política estricta de **lectura directa en red** con detección automática de entorno:
+- **Ruta PC Universidad (CADIT):**  
+  `C:\Users\daniel.alarcon.f\uniminuto.edu\G- Storage OEDE - VAC - FUENTES_T`
+- **Ruta Laptop Personal:**  
   `C:\Users\danie\uniminuto.edu\G- Storage OEDE - VAC - FUENTES_T`
-- **Variable de entorno:** `EXTERNAL_FUENTES_PATH` en `.env.local`.
+- **Variable de entorno opcional:** `EXTERNAL_FUENTES_PATH` en `.env.local` si se desea forzar una ruta específica.
 - **Regla inmutable:** **No se copian, no se mueven y no se eliminan archivos** del almacenamiento institucional. Las APIs inspeccionan en tiempo real las carpetas para extraer metadatos, fechas de última modificación (`mtime`), conteo de archivos y contenido de diccionarios en Markdown.
 
 ---

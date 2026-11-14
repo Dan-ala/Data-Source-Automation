@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-
-const DEFAULT_EXTERNAL_PATH = "C:\\Users\\danie\\uniminuto.edu\\G- Storage OEDE - VAC - FUENTES_T";
+import { getFuentesBasePath } from "@/lib/config";
 
 const SOURCE_MAP: Record<string, string> = {
   icetex: "ICETEX",
@@ -69,7 +68,7 @@ export async function GET(request: NextRequest) {
   const source = searchParams.get("source")?.toLowerCase() || "";
   const type = searchParams.get("type")?.toUpperCase() || "LEEME";
 
-  const basePath = process.env.EXTERNAL_FUENTES_PATH || DEFAULT_EXTERNAL_PATH;
+  const basePath = getFuentesBasePath();
   const relativeFolder = SOURCE_MAP[source] || source.toUpperCase();
   const targetDir = path.join(basePath, ...relativeFolder.split("/"));
 

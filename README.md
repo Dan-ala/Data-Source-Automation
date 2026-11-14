@@ -19,9 +19,12 @@ Plataforma oficial para el monitoreo, catalogación de metadatos, visualización
 ---
 
 ## 🗂️ Modelo de Ingesta (Directo y Solo Lectura)
-La plataforma se conecta directamente al repositorio de red institucional:
-`C:\Users\danie\uniminuto.edu\G- Storage OEDE - VAC - FUENTES_T`
+La plataforma se conecta dinámicamente al repositorio institucional según el entorno de trabajo:
+- **PC Universidad (CADIT):** `C:\Users\daniel.alarcon.f\uniminuto.edu\G- Storage OEDE - VAC - FUENTES_T`
+- **Laptop Personal:** `C:\Users\danie\uniminuto.edu\G- Storage OEDE - VAC - FUENTES_T`
+- **Ruta personalizada (Opcional):** configurable en `.env.local` mediante la variable `EXTERNAL_FUENTES_PATH`.
 
+- **Detección automática:** El sistema detecta en cuál de los dos equipos se está ejecutando y enlaza el directorio sin requerir ajustes manuales.
 - **Sin duplicación:** Ningún archivo de datos masivo se descarga o copia localmente.
 - **Lectura en tiempo real:** Las rutas API analizan metadatos, mtimes y documentos Markdown (`LEEME`, `Diccionarios`) al vuelo.
 

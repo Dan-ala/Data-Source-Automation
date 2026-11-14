@@ -852,7 +852,7 @@ export default function DashboardPage() {
               <Info className="w-3.5 h-3.5 text-cadit-yellow shrink-0" />
               <span>Repositorio activo:</span>
               <code className="bg-cadit-navy/60 px-2 py-0.5 rounded text-cadit-yellow font-mono text-[10px]">
-                {repoPath || "C:\\Users\\danie\\uniminuto.edu\\G- Storage OEDE - VAC - FUENTES_T"}
+                {repoPath || "Detectando repositorio FUENTES_T..."}
               </code>
             </div>
             <span className="text-white/60">
