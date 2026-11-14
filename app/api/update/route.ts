@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { execFile } from "child_process";
 import path from "path";
+import fs from "fs";
 import util from "util";
+import { getFuentesBasePath } from "@/lib/config";
 
 const execFileAsync = util.promisify(execFile);
 
@@ -10,8 +12,8 @@ const execFileAsync = util.promisify(execFile);
  * 
  * Flujo de ejecución:
  * 1. Recibe el nombre de la fuente (ej. "ICETEX", "DANE").
- * 2. Invoca el script `orquestador.py` mediante child_process (o simulación de respaldo).
- * 3. Crea las carpetas y archivos en el sistema local.
+ * 2. Si la fuente cuenta con estado.json o es OLE, responde 400 sin ejecutar orquestador.py.
+ * 3. Para las demás fuentes, invoca `orquestador.py` mediante child_process.
  * 4. Retorna el resultado con timestamp actualizado y estado al Dashboard.
  */
 export async function POST(request: NextRequest) {
@@ -24,6 +26,39 @@ export async function POST(request: NextRequest) {
         { 
           status: "error", 
           message: "El parámetro 'sourceName' es requerido y debe ser una cadena de texto." 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Regla 6: Para las fuentes que tengan estado.json (como OLE),
+    // responde 400 con un mensaje claro sin ejecutar orquestador.py.
+    const isOle = sourceName.toLowerCase().includes("ole");
+    let hasEstadoJson = isOle;
+
+    if (!hasEstadoJson) {
+      try {
+        const basePath = getFuentesBasePath();
+        const candidatePaths = [
+          path.join(basePath, sourceName, "ETL", "estado.json"),
+          path.join(basePath, sourceName.toUpperCase(), "ETL", "estado.json"),
+        ];
+        for (const cand of candidatePaths) {
+          if (fs.existsSync(cand)) {
+            hasEstadoJson = true;
+            break;
+          }
+        }
+      } catch {
+        hasEstadoJson = false;
+      }
+    }
+
+    if (hasEstadoJson || isOle) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Esta fuente cuenta con un extractor oficial dedicado y su flujo se ejecuta desde extractores/ole (mediante consola o GUI), no desde este botón.",
         },
         { status: 400 }
       );

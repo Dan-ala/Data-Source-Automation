@@ -24,7 +24,7 @@ const SOURCE_MAP: Record<string, string> = {
   secop: "SECOP",
   terridata: "TerriData",
   spadies: "SNIES/SPADIES",
-  ole: "SNIES/OLE",
+  ole: "OLE",
   saber_11: "ICFES/Saber_11",
   saber11: "ICFES/Saber_11",
   saber_tyt: "ICFES/Saber_TyT",

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-import { DataSource, SourceStatus } from "@/types/source";
+import { DataSource, SourceStatus, ProductoEstado, UltimoErrorVerificacion } from "@/types/source";
 import { getFuentesBasePath } from "@/lib/config";
 
 // 36 Fuentes institucionales organizadas por las 6 categorías definidas por OEDE - CADIT
@@ -22,8 +22,7 @@ const TARGET_SOURCES = [
   },
   {
     id: "ole",
-    folder: "SNIES",
-    subFolder: "OLE",
+    folder: "OLE",
     name: "OLE - OBSERVATORIO LABORAL",
     fullName: "Observatorio Laboral para la Educación (Graduados e Inserción)",
     category: "Educación",
@@ -475,7 +474,7 @@ export async function GET() {
   const resultSources: DataSource[] = [];
 
   for (const src of TARGET_SOURCES) {
-    const targetFolder = src.subFolder 
+    const targetFolder = src.subFolder
       ? path.join(basePath, src.folder, src.subFolder)
       : path.join(basePath, src.folder);
 
@@ -485,11 +484,87 @@ export async function GET() {
     let lastUpdatedFormatted = "No disponible";
     let status: SourceStatus = "Al día";
 
+    let estadoDetalle: string | undefined;
+    let productos: ProductoEstado[] | undefined;
+    let ultimoErrorVerificacion: UltimoErrorVerificacion | null | undefined;
+    let esquemaVersion: number | null | undefined;
+    let tieneEstadoJson = false;
+
+    // 1. Leer en modo solo lectura <targetFolder>/ETL/estado.json si existe
+    const estadoJsonPath = path.join(targetFolder, "ETL", "estado.json");
     try {
-      // 1. Verificar si existe la carpeta
+      const estadoContent = await fs.readFile(estadoJsonPath, "utf-8");
+      const estadoData = JSON.parse(estadoContent);
+
+      if (estadoData && typeof estadoData === "object") {
+        tieneEstadoJson = true;
+        esquemaVersion = estadoData.esquema_version ?? 1;
+        ultimoErrorVerificacion = estadoData.ultimo_error_verificacion ?? null;
+
+        const prodsObj = estadoData.productos;
+        if (prodsObj && typeof prodsObj === "object") {
+          const prodsList: ProductoEstado[] = [];
+          const now = new Date();
+
+          for (const [clave, p] of Object.entries(prodsObj)) {
+            if (p && typeof p === "object") {
+              const pData = p as any;
+              let prodEstado: string = (pData.estado || "sin_descarga").toLowerCase();
+
+              // Regla 3: Si un producto está "al_dia" y la fecha actual ya superó su proxima_verificacion, muéstralo como "vencida"
+              if (prodEstado === "al_dia" && pData.proxima_verificacion) {
+                try {
+                  const proxDate = new Date(pData.proxima_verificacion);
+                  if (!isNaN(proxDate.getTime()) && now > proxDate) {
+                    prodEstado = "vencida";
+                  }
+                } catch {
+                  // conservar estado
+                }
+              }
+
+              prodsList.push({
+                clave,
+                corte_descargado: pData.corte_descargado ?? null,
+                corte_disponible: pData.corte_disponible ?? null,
+                ultima_verificacion: pData.ultima_verificacion ?? null,
+                proxima_verificacion: pData.proxima_verificacion ?? null,
+                frecuencia_publicacion: pData.frecuencia_publicacion ?? null,
+                estado: prodEstado,
+                nota: pData.nota ?? null,
+              });
+            }
+          }
+
+          productos = prodsList;
+
+          // Regla 3: El estado global es el peor de los productos, con este orden de gravedad:
+          // fallida, datos_nuevos, vencida, sin_descarga, al_dia
+          const ORDEN_GRAVEDAD = ["fallida", "datos_nuevos", "vencida", "sin_descarga", "al_dia"];
+          const estadosPresentes = new Set(prodsList.map(pr => pr.estado));
+          for (const grav of ORDEN_GRAVEDAD) {
+            if (estadosPresentes.has(grav)) {
+              estadoDetalle = grav;
+              break;
+            }
+          }
+          if (!estadoDetalle) {
+            estadoDetalle = "sin_descarga";
+          }
+        } else if (typeof estadoData.estado === "string") {
+          estadoDetalle = estadoData.estado.toLowerCase();
+        }
+      }
+    } catch {
+      // Si el archivo no existe o es inválido, conserva exactamente la lógica actual
+      tieneEstadoJson = false;
+    }
+
+    try {
+      // 2. Verificar si existe la carpeta física
       await fs.access(targetFolder);
 
-      // 2. Verificar existencia de diccionario y guía
+      // 3. Verificar existencia de diccionario y guía
       const dictFolder = path.join(targetFolder, "Diccionarios");
       const guiaFolder = path.join(targetFolder, "Guia");
 
@@ -507,7 +582,7 @@ export async function GET() {
         hasLeeme = false;
       }
 
-      // 3. Inspeccionar conteo de archivos y última fecha de modificación
+      // 4. Inspeccionar conteo de archivos y última fecha de modificación
       const stats = await getDirectoryStats(targetFolder);
       filesCount = stats.fileCount;
 
@@ -522,6 +597,12 @@ export async function GET() {
 
         const daysDiff = (Date.now() - stats.latestMtime.getTime()) / (1000 * 60 * 60 * 24);
         status = daysDiff > 90 ? "Desactualizado" : "Al día";
+      }
+
+      // 5. Regla 4: Compatibilidad con status actual ("Al día" | "Desactualizado"):
+      // "Al día" solo si el estado global es al_dia; en cualquier otro caso, "Desactualizado".
+      if (tieneEstadoJson && estadoDetalle) {
+        status = estadoDetalle === "al_dia" ? "Al día" : "Desactualizado";
       }
     } catch {
       status = "Desactualizado";
@@ -542,6 +623,11 @@ export async function GET() {
       hasDiccionario,
       hasLeeme,
       subPath: src.subFolder ? `${src.folder}/${src.subFolder}` : src.folder,
+      estadoDetalle,
+      productos,
+      ultimoErrorVerificacion,
+      esquemaVersion,
+      tieneEstadoJson,
     });
   }
 
