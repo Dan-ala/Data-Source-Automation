@@ -166,3 +166,4 @@ git add app/ components/
 git commit -m "feat: descripción del cambio"
 git push origin main
 ```
+
