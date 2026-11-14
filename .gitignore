@@ -91,3 +91,16 @@ $RECYCLE.BIN/
 *.sublime-workspace
 *.swp
 *.swo
+
+# -----------------------------------------------------------------------------
+# 7. Extractores: artefactos locales, temporales y subrepositorio desvinculado
+# -----------------------------------------------------------------------------
+ole_descargas/
+.session_state.json
+.anios_ole_cache.json
+prueba_salida/
+data/salida/
+__pycache__/
+*.pyc
+*.log
+
